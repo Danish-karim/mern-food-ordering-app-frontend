@@ -1,8 +1,11 @@
 import {
   useCreateMyRestaurant,
   useGetMyRestaurant,
+  useGetMyRestaurantOrders,
   useUpdateMyRestaurant,
 } from "@/api/MyRestaurantApi";
+import OrderItemCart from "@/components/OrderItemCart";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ManageRestaurantForm from "@/forms/manage-restaurant-form/ManageRestaurantForm";
 import React from "react";
 
@@ -13,13 +16,31 @@ const ManageRestaurantPage = () => {
   const { updateRestaurant, isLoading: isUpdateLoading } =
     useUpdateMyRestaurant();
 
+  const { orders, isLoading: IsOrdersLoading } = useGetMyRestaurantOrders();
   const isEditing = !!restaurant;
   return (
-    <ManageRestaurantForm
-      onSave={isEditing ? updateRestaurant : createRestaurant}
-      isLoading={isCreateLoading || isUpdateLoading}
-      restaurant={restaurant}
-    />
+    <Tabs defaultValue="orders">
+      <TabsList>
+        <TabsTrigger value="orders">Orders</TabsTrigger>
+        <TabsTrigger value="manage-restaurant">Manage Restaurant</TabsTrigger>
+      </TabsList>
+      <TabsContent
+        value="orders"
+        className="space-y-5 bg-gray-50 p-10 rounded-lg"
+      >
+        <h2 className="text-2xl font-bold">{orders?.length} Orders</h2>
+        {orders?.map((order) => (
+          <OrderItemCart order={order} />
+        ))}
+      </TabsContent>
+      <TabsContent value="manage-restaurant">
+        <ManageRestaurantForm
+          onSave={isEditing ? updateRestaurant : createRestaurant}
+          isLoading={isCreateLoading || isUpdateLoading}
+          restaurant={restaurant}
+        />
+      </TabsContent>
+    </Tabs>
   );
 };
 
